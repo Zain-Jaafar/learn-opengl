@@ -5,4 +5,4 @@ This is a project where I learn graphics programming using OpenGL by following a
 I eventually want to create an ocean simulation from scratch.
 
 Most recent cool thing:
-![RGB Triangle](most-recent-cool-thing.png)
+![RGB Triangle](most-recent-cool-thing.webm)

@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <iostream>
+#include <algorithm>
 
 #include "shader.h"
 #include "stb_image.h"
@@ -36,10 +37,10 @@ int main(int argc, char* argv[]) {
     // Vertices for the triangles
     float vertices[] = {
         // position            // color           // texture coords
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // top left
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  // top right
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f,  // top left
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,  // top right
         -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // left bottom
-         0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,  // right bottom
+         0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   2.0f, 0.0f,  // right bottom
     };
     unsigned int indices[] = {
         0, 1, 2, // first triangle
@@ -118,6 +119,8 @@ int main(int argc, char* argv[]) {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    float textureRatio = 0.5;
+
     // Main program loop
     bool running = true;
     while (running) {
@@ -131,6 +134,14 @@ int main(int argc, char* argv[]) {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     std::cout << "ESC key pressed" << "\n";
                     running = false;
+                } else if (event.key.keysym.sym == SDLK_UP) {
+                    std::cout << "UP Arrow pressed" << "\n";
+                    textureRatio += 0.01f;
+                    textureRatio = std::clamp(textureRatio, 0.0f, 1.0f);
+                } else if (event.key.keysym.sym == SDLK_DOWN) {
+                    textureRatio -= 0.01f;
+                    textureRatio = std::clamp(textureRatio, 0.0f, 1.0f);
+                    std::cout << "DOWN Arrow pressed" << "\n";
                 }
             }
         }
@@ -142,6 +153,7 @@ int main(int argc, char* argv[]) {
         ourShader.use();
         ourShader.setInt("texture1", 0);
         ourShader.setInt("texture2", 1);
+        ourShader.setFloat("ratio", textureRatio);
 
         // Draw to the screen
         glActiveTexture(GL_TEXTURE0);
