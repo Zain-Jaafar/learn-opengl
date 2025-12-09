@@ -1,7 +1,6 @@
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <iostream>
-#include <algorithm>
 
 #include "shader.h"
 #include "stb_image.h"
@@ -136,12 +135,14 @@ int main(int argc, char* argv[]) {
                     running = false;
                 } else if (event.key.keysym.sym == SDLK_UP) {
                     std::cout << "UP Arrow pressed" << "\n";
-                    textureRatio += 0.01f;
-                    textureRatio = std::clamp(textureRatio, 0.0f, 1.0f);
+                    if (textureRatio < 1.0f) {
+                        textureRatio += 0.01f;
+                    }
                 } else if (event.key.keysym.sym == SDLK_DOWN) {
-                    textureRatio -= 0.01f;
-                    textureRatio = std::clamp(textureRatio, 0.0f, 1.0f);
                     std::cout << "DOWN Arrow pressed" << "\n";
+                    if (textureRatio > 0.0f) {
+                        textureRatio -= 0.01f;
+                    }
                 }
             }
         }
