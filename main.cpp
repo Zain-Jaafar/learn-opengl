@@ -1,6 +1,11 @@
+#include <iostream>
+
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
-#include <iostream>
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
 #include "stb_image.h"
@@ -36,10 +41,10 @@ int main(int argc, char* argv[]) {
     // Vertices for the triangles
     float vertices[] = {
         // position            // color           // texture coords
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f,  // top left
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,  // top right
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f,  // top left
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,  // top right
         -0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,  // left bottom
-         0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   2.0f, 0.0f,  // right bottom
+         0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,  // right bottom
     };
     unsigned int indices[] = {
         0, 1, 2, // first triangle
@@ -155,6 +160,14 @@ int main(int argc, char* argv[]) {
         ourShader.setInt("texture1", 0);
         ourShader.setInt("texture2", 1);
         ourShader.setFloat("ratio", textureRatio);
+
+
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));  
+        trans = glm::rotate(trans, (float)SDL_GetTicks64()/200.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+        unsigned int transformLocation = glGetUniformLocation(ourShader.ID, "transform");
+        glUniformMatrix4fv(transformLocation, 1, GL_FALSE, glm::value_ptr(trans));
 
         // Draw to the screen
         glActiveTexture(GL_TEXTURE0);
