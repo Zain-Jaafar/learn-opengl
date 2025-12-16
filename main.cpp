@@ -8,6 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
+#include "camera.h"
 #include "stb_image.h"
 
 
@@ -40,6 +41,8 @@ int main(int argc, char* argv[]) {
 
     glEnable(GL_DEPTH_TEST);
     
+    Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
     // Vertices for the triangles
     //float vertices[] = {
     //    // position            // color           // texture coords
@@ -189,9 +192,20 @@ int main(int argc, char* argv[]) {
 
     float textureRatio = 0.2;
 
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
+
     // Main program loop
     bool running = true;
     while (running) {
+        // Capture and hide mouse cursor
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+
+        float currentFrame = SDL_GetPerformanceCounter();
+        deltaTime = (currentFrame - lastFrame)*1000 / SDL_GetPerformanceFrequency();
+        lastFrame = currentFrame;
+
+
         // Handle events
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -212,7 +226,34 @@ int main(int argc, char* argv[]) {
                     if (textureRatio > 0.0f) {
                         textureRatio -= 0.01f;
                     }
+                } 
+                
+                if (event.key.keysym.sym == SDLK_w) {
+                    camera.ProcessKeyboard(FORWARD, deltaTime);
+                } 
+                if (event.key.keysym.sym == SDLK_s) {
+                    camera.ProcessKeyboard(BACKWARD, deltaTime);
                 }
+                if (event.key.keysym.sym == SDLK_a) {
+                    camera.ProcessKeyboard(LEFT, deltaTime);
+                }
+                if (event.key.keysym.sym == SDLK_d) {
+                    camera.ProcessKeyboard(RIGHT, deltaTime);
+                }
+            }
+
+            if (event.type == SDL_MOUSEMOTION) {
+                int dx = event.motion.xrel;
+                int dy = -event.motion.yrel;
+
+                camera.ProcessMouseMovement(dx, dy);
+            }
+
+            if (event.type == SDL_MOUSEWHEEL) {
+                int scrollX = event.wheel.x;
+                int scrollY = event.wheel.y;
+                
+                camera.ProcessMouseScroll(scrollY);
             }
         }
 
@@ -228,12 +269,10 @@ int main(int argc, char* argv[]) {
         glm::mat4 model = glm::mat4(1.0f);
         //model = glm::rotate(model, (float)SDL_GetTicks64()/400.0f * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-
-        glm::mat4 view = glm::mat4(1.0f);
-        view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+        glm::mat4 view = camera.GetViewMatrix();
 
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
+        projection = glm::perspective(glm::radians(camera.Zoom), 800.0f/600.0f, 0.1f, 100.0f);
 
         unsigned int modelLocation = glGetUniformLocation(ourShader.ID, "model");
         glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(model));
