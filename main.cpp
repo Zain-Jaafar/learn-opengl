@@ -120,9 +120,9 @@ int main(int argc, char* argv[]) {
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
+    unsigned int lampVAO;
+    glGenVertexArrays(1, &lampVAO);
+    glBindVertexArray(lampVAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
@@ -134,19 +134,16 @@ int main(int argc, char* argv[]) {
     glEnableVertexAttribArray(0);
 
     Shader cubeShader("cubeShader.vs", "cubeShader.fs");
-    Shader lightShader("lightShader.vs", "lightShader.fs");
+    Shader lampShader("lampShader.vs", "lampShader.fs");
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
 
-    glm::vec3 lightPos(2.0f, 1.2f, 2.0f);
+    glm::vec3 lampPos(2.0f, 1.2f, 2.0f);
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.3f);
-
-    float lightRotationAngle = glm::radians(0.0f);
-
 
     // Main program loop
     bool running = true;
@@ -207,7 +204,7 @@ int main(int argc, char* argv[]) {
 
         cubeShader.use();
         cubeShader.setVec3("lightColor", lightColor);
-        cubeShader.setVec3("lightPos", lightPos);
+        cubeShader.setVec3("lightPos", lampPos);
         cubeShader.setVec3("objectColor", objectColor);
         cubeShader.setVec3("viewPos", camera.Position);
 
@@ -233,22 +230,22 @@ int main(int argc, char* argv[]) {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         
         // also draw the lamp object
-        lightShader.use();
-        lightShader.setVec3("lightColor", lightColor);
-        lightShader.setMat4("projection", projection);
-        lightShader.setMat4("view", view);
+        lampShader.use();
+        lampShader.setVec3("lightColor", lightColor);
+        lampShader.setMat4("projection", projection);
+        lampShader.setMat4("view", view);
         model = glm::mat4(1.0f);
 
 
-        lightPos.x = 2.0f * sin(SDL_GetTicks64()/1000.f);
-        lightPos.z = 2.0f * cos(SDL_GetTicks64()/1000.f);
-        model = glm::translate(model, lightPos);
+        lampPos.x = 2.0f * sin(SDL_GetTicks64()/1000.f);
+        lampPos.z = 2.0f * cos(SDL_GetTicks64()/1000.f);
+        model = glm::translate(model, lampPos);
 
         model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
         
-        lightShader.setMat4("model", model);
+        lampShader.setMat4("model", model);
 
-        glBindVertexArray(lightVAO);
+        glBindVertexArray(lampVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         glBindVertexArray(0);
