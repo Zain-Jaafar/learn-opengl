@@ -5,4 +5,4 @@ This is a project where I learn graphics programming using OpenGL by following a
 I eventually want to create a "SeaofTheives-like" ocean simulation from scratch.
 
 Most recent cool thing:  
-![basic lighting and colours](most-recent-cool-thing.gif)
+![Phong Lighting](most-recent-cool-thing.gif)
