@@ -5,4 +5,4 @@ This is a project where I learn graphics programming using OpenGL by following a
 I eventually want to create a "SeaofTheives-like" ocean simulation from scratch.
 
 Most recent cool thing:  
-![Specular Map Example](most-recent-cool-thing.gif)
+![Attenuated Point Light](most-recent-cool-thing.gif)
