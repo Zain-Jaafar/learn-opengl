@@ -175,6 +175,13 @@ int main(int argc, char* argv[]) {
 
     int objectShininess = 32.0f;
 
+    glm::vec3 pointLightPositions[] = {
+      glm::vec3( 0.7f,  0.2f,  2.0f),
+      glm::vec3( 2.3f, -3.3f, -4.0f),
+      glm::vec3(-4.0f,  2.0f, -12.0f),
+      glm::vec3( 0.0f,  0.0f, -3.0f)
+    };  
+    
     SDL_bool mouseLocked = SDL_TRUE;
 
     IMGUI_CHECKVERSION();
@@ -267,23 +274,27 @@ int main(int argc, char* argv[]) {
         cubeShader.setInt("material.specular", 1);
         cubeShader.setFloat("material.shininess", objectShininess);
 
-        cubeShader.setVec3("light.position", lampPos); // for point lighting
-        cubeShader.setVec3("light.direction", -0.2f, -1.0f, -0.3f); // for point and diectional lighting
-        // cubeShader.setVec3("light.position", camera.Position); // for spot/flashlight
-        // cubeShader.setVec3("light.direction", camera.Front); // for spot/flashlight
-        cubeShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
-        cubeShader.setVec3("light.ambient", lampAmbience);
-        cubeShader.setVec3("light.diffuse", lampDiffuse);
-        cubeShader.setVec3("light.specular", lampSpecular);
-        cubeShader.setFloat("light.constant", 1.0f);
-        cubeShader.setFloat("light.linear", 0.09f);
-        cubeShader.setFloat("light.quadratic", 0.032f);
+        cubeShader.setVec3("dirLight.direction",-0.2f, -1.0f, -0.3f); 
+        cubeShader.setVec3("dirlight.ambient", lampAmbience);
+        cubeShader.setVec3("dirlight.diffuse", lampDiffuse);
+        cubeShader.setVec3("dirlight.specular", lampSpecular);
+        
+        for (unsigned int i = 0; i < (sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
+            std::string pointLightIndex = std::string("pointLights[") + std::to_string(i) + "].";
 
+            cubeShader.setVec3(pointLightIndex + "position", pointLightPositions[i]);
+            cubeShader.setVec3(pointLightIndex + "ambient", 0.05f, 0.05f, 0.05f);
+            cubeShader.setVec3(pointLightIndex + "diffuse", 0.8f, 0.8f, 0.8f);
+            cubeShader.setVec3(pointLightIndex + "specular", 1.0f, 1.0f, 1.0f);
+            cubeShader.setFloat(pointLightIndex + "constant", 1.0f);
+            cubeShader.setFloat(pointLightIndex + "linear", 0.09f);
+            cubeShader.setFloat(pointLightIndex + "quadratic", 0.032f);
+        }
+        
         containerTexture.bind(0);
         containerSpecularMap.bind(1);
 
         glm::mat4 model = glm::mat4(1.0f);
-
 
         glm::mat4 view = camera.GetViewMatrix();
 
@@ -311,24 +322,22 @@ int main(int argc, char* argv[]) {
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
         
         // also draw the lamp object
         lampShader.use();
         lampShader.setVec3("lightColor", lightColor);
         lampShader.setMat4("projection", projection);
         lampShader.setMat4("view", view);
-
-        model = glm::mat4(1.0f);
-
-        model = glm::translate(model, lampPos);
-
-        model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
         
-        lampShader.setMat4("model", model);
-
         glBindVertexArray(lampVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+        for (unsigned int i = 0; i < (sizeof(pointLightPositions)/sizeof(glm::vec3)); i++) {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, pointLightPositions[i]);
+            model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
+            lampShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         glBindVertexArray(0);
       
